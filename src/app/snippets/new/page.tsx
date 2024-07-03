@@ -1,10 +1,13 @@
 "use client";
 
-import {useFormState} from "react-dom"
-import * as actions from "@/actions"
+import {useFormState} from "react-dom";
+import * as actions from "@/actions";
+import {db} from "@/db";
 
 export default function SnippetCreatePage() {
-    const [formState, action] = useFormState(actions.createSnippet, {message: ""})
+    const [formState, action] = useFormState(actions.createSnippet, {message: ""});
+
+    console.log('formState:', formState);
 
     return (
         <form action={action}>
@@ -14,20 +17,44 @@ export default function SnippetCreatePage() {
                     <label className='w-12' htmlFor="title">
                         Title
                     </label>
-                    <input className='border rounded p-2 w-full' id="title" name="title"/>
+                    <input
+                        className='border rounded p-2 w-full'
+                        id="title"
+                        name="title"
+                        required
+                    />
                 </div>
                 <div className='flex gap-4'>
                     <label className='w-12' htmlFor="code">
                         Code
                     </label>
-                    <textarea className='border rounded p-2 w-full' id="code" name="code"/>
+                    <textarea
+                        className='border rounded p-2 w-full'
+                        id="code"
+                        name="code"
+                        required
+                    />
                 </div>
-                {
-                    formState.message ? <div
-                        className="my-2 p-2 bg-red-200 border rounded border-red-400">{formState.message}</div> : null
-                }
-                <button type="submit" className="rounded p-2 bg-blue-200">Save</button>
+                {formState.message ? (
+                    <div key="message" className="my-2 p-2 bg-red-200 border rounded border-red-400">
+                        {formState.message}
+                    </div>
+                ) : null}
+                <button type="submit" className="rounded p-2 bg-blue-200">
+                    Save
+                </button>
             </div>
         </form>
-    )
+    );
+}
+
+
+export async function generateStaticParams() {
+    const snippets = await db.snippet.findMany();
+
+    return snippets.map((snippet) => {
+        return {
+            id: snippet.id.toString()
+        }
+    })
 }
